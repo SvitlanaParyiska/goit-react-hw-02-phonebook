@@ -4,6 +4,7 @@ import ContactForm from './ContactForm/ContactForm';
 import Filter from './Filter/Filter';
 import ContactList from './ContactList/ContactList';
 import { Container } from './App.styled';
+import Notification from './Notification/Notification';
 
 export class App extends Component {
   state = {
@@ -38,24 +39,34 @@ export class App extends Component {
     }));
   };
 
-  filterContact = filterValue => {
-    this.setState(prev => ({
-      filter: prev.contacts.filter(el =>
-        el.name.toLowerCase().includes(filterValue.toLowerCase())
-      ),
-    }));
+  getVisibleContacts = () => {
+    const { filter, contacts } = this.state;
+    const normalizedFilter = filter.toLowerCase();
+
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
+  };
+
+  changeFilter = event => {
+    this.setState({ filter: event.target.value });
   };
 
   render() {
+    const visibleContacts = this.getVisibleContacts();
     return (
       <Container>
         <h1>Phonebook</h1>
         <ContactForm createContact={this.createContact} />
         <h2>Contacts</h2>
-        <Filter filterContact={this.filterContact} />
+        {this.state.contacts.length > 0 ? (
+          <Filter filterContact={this.changeFilter} />
+        ) : (
+          <Notification text={'Your phonebook is empty. Add first contact!'} />
+        )}
+
         <ContactList
-          contactList={this.state.contacts}
-          filterItem={this.state.filter}
+          contactList={visibleContacts}
           handleDelete={this.handleDelete}
         />
       </Container>
